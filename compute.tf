@@ -12,17 +12,25 @@ resource "aws_security_group" "patientping-public" {
   name        = "patientping-public"
   description = "Allow public access"
   vpc_id      = aws_vpc.main.id
-  ingress {
-    description = "Allow web traffic for PatientPing site"
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   tags = {
     Name = "patientping-sg-public"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "patientping-public-ingress-rules" {
+  security_group_id = aws_security_group.patientping-public.id
+  ip_protocol       = "tcp"
+  description       = "Allow web traffic for PatientPing site"
+  from_port         = 8080
+  to_port           = 8080
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "patientping-public-egress-rules" {
+  security_group_id = aws_security_group.patientping-public.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_network_interface" "main" {

@@ -1,8 +1,6 @@
 # Terraform
-*.tfstate
-*.tfstate.backup
+*.tfstate*
 .terraform/
-terraform.tfstate.lock.info
 
 # Local env / secrets
 .env

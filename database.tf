@@ -15,19 +15,20 @@ resource "aws_security_group" "patientping-rds-sg" {
   vpc_id = aws_vpc.main.id
   name   = "patientping-rds-sg"
 
-  ingress {
-    description     = "Allow app server to access DB"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.patientping-public.id]
-  }
 
   tags = {
     Name = "patientping-rds-sg"
   }
 }
 
+resource "aws_vpc_security_group_ingress_rule" "patientping-rds-ingress-rules" {
+  security_group_id            = aws_security_group.patientping-rds-sg.id
+  description                  = "Allow app server to access DB"
+  ip_protocol                  = "tcp"
+  from_port                    = 5432
+  to_port                      = 5432
+  referenced_security_group_id = aws_security_group.patientping-public.id
+}
 
 resource "aws_db_instance" "main" {
   identifier     = "patientping-db"
@@ -52,7 +53,27 @@ resource "aws_db_instance" "main" {
 
   db_name                 = "patientping"
   backup_retention_period = 1
+  skip_final_snapshot     = true
 
 
   tags = { Name = "patientping-db" }
+}
+
+resource "aws_db_instance" "replica" {
+  identifier = "patientping-replica"
+
+  replicate_source_db = aws_db_instance.main.arn
+  instance_class      = aws_db_instance.main.instance_class
+
+
+  vpc_security_group_ids = [aws_security_group.patientping-rds-sg.id]
+  db_subnet_group_name   = aws_db_subnet_group.rds.name
+
+  availability_zone   = null
+  publicly_accessible = false
+
+  backup_retention_period = 0
+
+  skip_final_snapshot = true
+  tags                = { Name = "patientping_replica" }
 }
