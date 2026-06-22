@@ -1,0 +1,24 @@
+services:
+  ministack:
+    image: ministackorg/ministack:full
+    container_name: local-ministack
+    ports:
+      - "4566:4566"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import http.client; c=http.client.HTTPConnection('localhost',4566); c.request('GET','/_ministack/health'); assert c.getresponse().status==200"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  patientping-web:
+    image: patientping-web-snapshot
+    container_name: patientping-web-v2
+    ports:
+      - "2222:22"
+      - "8080:8080"
+    command: /usr/sbin/sshd -D
+    depends_on:
+      ministack:
+        condition: service_healthy
+
