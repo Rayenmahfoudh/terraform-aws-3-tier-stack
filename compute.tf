@@ -18,19 +18,23 @@ resource "aws_security_group" "patientping-public" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "patientping-public-ingress-rules" {
+resource "aws_security_group_rule" "patientping_public_ingress" {
+  type              = "ingress"
   security_group_id = aws_security_group.patientping-public.id
-  ip_protocol       = "tcp"
-  description       = "Allow web traffic for PatientPing site"
   from_port         = 8080
   to_port           = 8080
-  cidr_ipv4         = "0.0.0.0/0"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow web traffic for PatientPing site"
 }
 
-resource "aws_vpc_security_group_egress_rule" "patientping-public-egress-rules" {
+resource "aws_security_group_rule" "patientping_public_egress" {
+  type              = "egress"
   security_group_id = aws_security_group.patientping-public.id
-  ip_protocol       = "-1"
-  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_network_interface" "main" {
@@ -51,6 +55,7 @@ resource "aws_instance" "web" {
   subnet_id                   = aws_subnet.public_a.id
   associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.main.id, aws_security_group.patientping-public.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2.name
 
 
   tags = {

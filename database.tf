@@ -21,13 +21,14 @@ resource "aws_security_group" "patientping-rds-sg" {
   }
 }
 
-resource "aws_vpc_security_group_ingress_rule" "patientping-rds-ingress-rules" {
-  security_group_id            = aws_security_group.patientping-rds-sg.id
-  description                  = "Allow app server to access DB"
-  ip_protocol                  = "tcp"
-  from_port                    = 5432
-  to_port                      = 5432
-  referenced_security_group_id = aws_security_group.patientping-public.id
+resource "aws_security_group_rule" "patientping_rds_ingress" {
+  type                     = "ingress"
+  security_group_id        = aws_security_group.patientping-rds-sg.id
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.patientping-public.id
+  description              = "Allow app server to access DB"
 }
 
 resource "aws_db_instance" "main" {
