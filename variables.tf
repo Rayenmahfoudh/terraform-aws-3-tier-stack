@@ -40,3 +40,9 @@ variable "ssh_public_key_path" {
   type        = string
   default     = "~/.ssh/patientping-key.pub"
 }
+
+variable "alert_mail" {
+  description = "Mail address for cloudwatch alerts"
+  type        = string
+  default     = "example@mail.com"
+}

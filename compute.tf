@@ -55,7 +55,7 @@ resource "aws_instance" "web" {
   subnet_id                   = aws_subnet.public_a.id
   associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.main.id, aws_security_group.patientping-public.id]
-  iam_instance_profile        = aws_iam_instance_profile.ec2.name
+  iam_instance_profile        = aws_iam_instance_profile.ec2_monitoring.name
 
 
   tags = {
